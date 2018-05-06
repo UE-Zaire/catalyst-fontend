@@ -19,15 +19,16 @@ export default class ForceGraph extends Component<IProps, {}> {
 
 
   public componentDidMount() {
+    const { width, height, data } = this.props;
+
     if (this.ctrls.mountPoint !== undefined) {
-      const { width, height, data } = this.props;
 
       this.force = d3
         .forceSimulation()
         .nodes(data.nodes)
-        .force('charge', d3.forceManyBody().strength(-200))
+        .force('charge', d3.forceManyBody().strength(-1800))
         .force("link", d3.forceLink(data.links).id((d: any) => d.id))
-        .force('center', d3.forceCenter(width / 2, height / 1.5));
+        .force('center', d3.forceCenter(width / 2, height / 2));
 
       const svg = d3
         .select(this.ctrls.mountPoint)
@@ -53,7 +54,7 @@ export default class ForceGraph extends Component<IProps, {}> {
         .data(data.nodes)
         .enter()
         .append<SVGCircleElement>('circle')
-        .attr('r', 28)
+        .attr('r', 40)
         .style('stroke', '#FFFFFF')
         .style('stroke-width', 1.5)
         .style('fill', (d: any) => color(d.group))
@@ -74,15 +75,6 @@ export default class ForceGraph extends Component<IProps, {}> {
 					    .style("fill", "white")
 					    .style("font-family", "Arial")
 					    .style("font-size", 12);
-      // svg
-      //   .attr("class", "labels")
-      //   .selectAll("text")
-      //   .data(data.nodes)
-      //   .enter().append("text")
-      //   .attr("dx", 12)
-      //   .attr("dy", ".35em")
-      //   .text((d: any) => d.id)
-      //   .style('font-size', '14px')
 
 
       this.force.on('tick', () => {
@@ -100,6 +92,8 @@ export default class ForceGraph extends Component<IProps, {}> {
       });
     }
   }
+
+  
 
   public render() {
     const { width, height } = this.props;
