@@ -1,9 +1,7 @@
 /* tslint:disable:no-console jsx-no-lambda */
-// import { Button, Icon, Layout, Row, Select, Spin } from "antd";
 import { Layout, Spin } from "antd";
 import Axios from 'axios';
 import * as React from 'react';
-// import * as Autocomplete from "react-autocomplete";
 import '../node_modules/antd/es/input/style/index.css';
 import Head from "./components/Head";
 import Nav from "./components/Nav";
