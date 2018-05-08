@@ -1,3 +1,4 @@
+/* tslint:disable:no-console jsx-no-lambda */
 import * as d3 from 'd3';
 import * as React from 'react';
 import { Component } from 'react';
@@ -13,22 +14,70 @@ interface IRefs {
   mountPoint?: HTMLDivElement | null;
 }
 
-export default class ForceGraph extends Component<IProps, {}> {
+export default class ForceGraph extends Component<IProps> {
   private ctrls: IRefs = {};
   private force: any;
-
-
+  
+  
   public componentDidMount() {
+    this.renderForce();
+  }
+  
+  public componentDidUpdate() {
+    console.log(' shouldupdating component')
+    this.removeForce();
+    this.renderForce();
+  }
+  
+  public shouldComponentUpdate(nextProps: IProps) {
+  
+    return JSON.stringify(this.props.data) === JSON.stringify(nextProps.data) ? 
+    false : true;
+  }
+  
+  
+  
+  
+  
+  public render() {
+    const { width, height } = this.props;
+    const style = {
+      backgroundColor: '#333',
+      height,
+      width
+    };
+    return <div style={style} ref={mountPoint => (this.ctrls.mountPoint = mountPoint)} />;
+  }
+  
+  private removeForce() {
+    const force: any = this.ctrls.mountPoint;
+    
+    while(force.hasChildNodes()) {
+      force.removeChild(force.lastChild);
+    }
+  }
+  
+  private renderForce() {
     const { width, height, data } = this.props;
-
+    console.log('rendering de Force', data);
+    const radius: number = data.nodes.length > 500 ? 40 * 300/data.nodes.length : height > 1800 ? 44 : 30;
+    
     if (this.ctrls.mountPoint !== undefined) {
 
       this.force = d3
         .forceSimulation()
         .nodes(data.nodes)
-        .force('charge', d3.forceManyBody().strength(-1800))
+        .force(
+          'charge', 
+          d3
+            .forceManyBody()
+            .strength(
+              data.nodes.length > 500 ? -200 : 
+              data.nodes.length > 100 ? -1400 : 
+              height > 1800 ? (data.nodes.length > 60 ? -3000 : data.nodes.length > 30 ? -4000 : -10000) :
+              -3200))
         .force("link", d3.forceLink(data.links).id((d: any) => d.id))
-        .force('center', d3.forceCenter(width / 2, height / 2));
+        .force('center', d3.forceCenter(width / 2, height / 2.2));
 
       const svg = d3
         .select(this.ctrls.mountPoint)
@@ -45,7 +94,7 @@ export default class ForceGraph extends Component<IProps, {}> {
         .append('line')
         .style('stroke', '#999999')
         .style('stroke-opacity', 0.6)
-        .style('stroke-width', d => Math.sqrt(d.value));
+        .style('stroke-width', d => Math.sqrt(d.value) * 2)
 
 
       const color = d3.scaleOrdinal(d3.schemeCategory10);
@@ -54,9 +103,9 @@ export default class ForceGraph extends Component<IProps, {}> {
         .data(data.nodes)
         .enter()
         .append<SVGCircleElement>('circle')
-        .attr('r', 40)
+        .attr('r', radius)
         .style('stroke', '#FFFFFF')
-        .style('stroke-width', 1.5)
+        .style('stroke-width', 2)
         .style('fill', (d: any) => color(d.group))
         .call(
           d3
@@ -64,17 +113,17 @@ export default class ForceGraph extends Component<IProps, {}> {
             .on('start', ((d: any) => this.dragStarted(d, this.force)))
             .on('drag', this.dragged)
             .on('end', ((d: any) => this.dragEnded(d, this.force))),
-      );
+      )
 
       const labels = svg.selectAll(".mytext")
-						.data(data.nodes)
-						.enter()
-						.append("text")
-					    .text((d: any) => d.id )
-					    .style("text-anchor", "middle")
-					    .style("fill", "white")
-					    .style("font-family", "Arial")
-					    .style("font-size", 12);
+            .data(data.nodes)
+            .enter()
+            .append("text")
+              .text((d: any) => d.id )
+              .style("text-anchor", "middle")
+              .style("fill", "white")
+              .style("font-family", "Arial")
+              .style("font-size", 12);
 
 
       this.force.on('tick', () => {
@@ -84,7 +133,9 @@ export default class ForceGraph extends Component<IProps, {}> {
           .attr('x2', (d: any) => d.target.x)
           .attr('y2', (d: any) => d.target.y);
 
-        node.attr('cx', (d: any) => d.x).attr('cy', (d: any) => d.y);
+        // node.attr('cx', (d: any) => d.x).attr('cy', (d: any) => d.y);
+        node.attr("cx", (d: any) => d.x = Math.max(radius, Math.min(width - radius, d.x)) + 16)
+        .attr("cy", (d: any) => d.y = Math.max(radius, Math.min(height - radius, d.y)) + 16);
 
         labels
           .attr("x", (d: any) => d.x )
@@ -92,19 +143,6 @@ export default class ForceGraph extends Component<IProps, {}> {
       });
     }
   }
-
-  
-
-  public render() {
-    const { width, height } = this.props;
-    const style = {
-      backgroundColor: '#333',
-      height,
-      width
-    };
-    return <div style={style} ref={mountPoint => (this.ctrls.mountPoint = mountPoint)} />;
-  }
-
   private dragStarted(d: any, force: any) {
     if (!d3.event.active) {
       force.alphaTarget(0.3).restart();
@@ -120,8 +158,8 @@ export default class ForceGraph extends Component<IProps, {}> {
 
   private dragEnded(d: any, force: any) {
     if (!d3.event.active) { force.alphaTarget(0)};
-    d.fx = null;
-    d.fy = null;
+    // d.fx = null;
+    // d.fy = null;
   }
 
 }

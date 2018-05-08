@@ -5,16 +5,18 @@
   "dependencies": {
     "@types/axios": "^0.14.0",
     "@types/d3": "^5.0.0",
+    "antd": "^3.5.0",
     "axios": "^0.18.0",
     "d3": "^5.1.0",
     "react": "^16.3.2",
+    "react-autocomplete": "^1.8.1",
     "react-dom": "^16.3.2",
     "react-scripts-ts": "2.15.1"
   },
   "scripts": {
-    "start": "react-scripts-ts start",
-    "build": "react-scripts-ts build",
-    "test": "react-scripts-ts test --env=jsdom",
+    "start": "react-app-rewired start --scripts-version react-scripts-ts",
+    "build": "react-app-rewired build --scripts-version react-scripts-ts",
+    "test": "react-app-rewired test --env=jsdom --scripts-version react-scripts-ts",
     "eject": "react-scripts-ts eject"
   },
   "devDependencies": {
@@ -22,6 +24,8 @@
     "@types/node": "^10.0.3",
     "@types/react": "^16.3.13",
     "@types/react-dom": "^16.0.5",
+    "react-app-rewired": "^1.5.2",
+    "ts-import-plugin": "^1.4.4",
     "typescript": "^2.8.3"
   }
 }
