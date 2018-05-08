@@ -134,8 +134,8 @@ export default class ForceGraph extends Component<IProps> {
           .attr('y2', (d: any) => d.target.y);
 
         // node.attr('cx', (d: any) => d.x).attr('cy', (d: any) => d.y);
-        node.attr("cx", (d: any) => d.x = Math.max(radius, Math.min(width - radius, d.x)) + 16)
-        .attr("cy", (d: any) => d.y = Math.max(radius, Math.min(height - radius, d.y)) + 16);
+        node.attr("cx", (d: any) => d.x = Math.max(radius, Math.min(width - radius, d.x)))
+        .attr("cy", (d: any) => d.y = Math.max(radius, Math.min(height - radius, d.y)));
 
         labels
           .attr("x", (d: any) => d.x )
