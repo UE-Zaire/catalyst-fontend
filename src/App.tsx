@@ -3,6 +3,7 @@ import { Button, Col, Icon, Layout, Menu, Row, Select, Spin } from "antd";
 import Axios from 'axios';
 import * as React from 'react';
 import * as Autocomplete from "react-autocomplete";
+import '../node_modules/antd/es/input/style/index.css';
 import * as Logo from "./assets/zaire.logo.png"
 import ForceGraph from "./dataViz/BasicForce";
 import { IData } from "./testData/leMis";
@@ -109,8 +110,8 @@ export default class App extends React.Component<{}, {}> {
                   onClick={this.toggle}
                   style={{ width: '6rem' }}
                 />
-
                 <Autocomplete
+                  className="ant-input"
                   items={search}
                   shouldItemRender={(item: any, value: any) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
                   getItemValue={(item: any) => item.label}
@@ -125,6 +126,7 @@ export default class App extends React.Component<{}, {}> {
                   value={this.state.value1}
                   onChange={(e: any) => this.setState({ value1: e.target.value })}
                   onSelect={(value1: any) => this.setState({ value1 })}
+                  style={{}}
                 />
                 {
                   this.state.currentFetch === 'surroundings' ?
@@ -135,7 +137,7 @@ export default class App extends React.Component<{}, {}> {
                     >
                       <OptGroup label="Depth">
                         <Option value="1">1</Option>
-                        <Option value="2">3</Option>
+                        <Option value="2">2</Option>
                       </OptGroup>
                     </Select>) :
                     (<Autocomplete
@@ -214,7 +216,7 @@ export default class App extends React.Component<{}, {}> {
   }
 
   private postSurroundings = () => {
-    Axios.post('http://localhost:3005/api/surroundings', { source: this.state.value1, depth: this.state.depth })
+    Axios.post('http://localhost:3005/api/surroundings', { source: this.state.value1, distance: this.state.depth })
     // tslint:disable-next-line:no-shadowed-variable
     .then(({ data }) => {
       const graphData: IData = data;
@@ -238,7 +240,6 @@ export default class App extends React.Component<{}, {}> {
   }
 
   private handleSelect = (e: any) => {
-    console.log('menu click ', e.key)
     this.setState({
       currentFetch: e.key,
     });
@@ -247,7 +248,7 @@ export default class App extends React.Component<{}, {}> {
   private handleChange = (e: any) => {
     this.setState({
       // tslint:disable-next-line:radix
-      depth: parseInt(e.key)
+      depth: parseInt(e)
     });
   }
 

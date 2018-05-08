@@ -17,18 +17,25 @@ interface IRefs {
 export default class ForceGraph extends Component<IProps> {
   private ctrls: IRefs = {};
   private force: any;
-
-
+  
+  
   public componentDidMount() {
     this.renderForce();
   }
-
+  
   public componentDidUpdate() {
-    console.log('updating component')
+    console.log(' shouldupdating component')
     this.removeForce();
     this.renderForce();
   }
-
+  
+  public shouldComponentUpdate(nextProps: IProps) {
+  
+    return JSON.stringify(this.props.data) === JSON.stringify(nextProps.data) ? 
+    false : true;
+  }
+  
+  
   
   
   
@@ -41,10 +48,10 @@ export default class ForceGraph extends Component<IProps> {
     };
     return <div style={style} ref={mountPoint => (this.ctrls.mountPoint = mountPoint)} />;
   }
-
+  
   private removeForce() {
     const force: any = this.ctrls.mountPoint;
-
+    
     while(force.hasChildNodes()) {
       force.removeChild(force.lastChild);
     }
@@ -53,13 +60,22 @@ export default class ForceGraph extends Component<IProps> {
   private renderForce() {
     const { width, height, data } = this.props;
     console.log('rendering de Force', data);
-
+    const radius: number = data.nodes.length > 500 ? 40 * 300/data.nodes.length : height > 1800 ? 44 : 30;
+    
     if (this.ctrls.mountPoint !== undefined) {
 
       this.force = d3
         .forceSimulation()
         .nodes(data.nodes)
-        .force('charge', d3.forceManyBody().strength(data.nodes.length > 500 ? -200: data.nodes.length > 100 ? -1000 : height > 1800 ? -8600 : -3200))
+        .force(
+          'charge', 
+          d3
+            .forceManyBody()
+            .strength(
+              data.nodes.length > 500 ? -200 : 
+              data.nodes.length > 100 ? -1400 : 
+              height > 1800 ? (data.nodes.length > 60 ? -3000 : data.nodes.length > 30 ? -4000 : -10000) :
+              -3200))
         .force("link", d3.forceLink(data.links).id((d: any) => d.id))
         .force('center', d3.forceCenter(width / 2, height / 2.2));
 
@@ -78,7 +94,7 @@ export default class ForceGraph extends Component<IProps> {
         .append('line')
         .style('stroke', '#999999')
         .style('stroke-opacity', 0.6)
-        .style('stroke-width', d => Math.sqrt(d.value) * 2);
+        .style('stroke-width', d => Math.sqrt(d.value) * 2)
 
 
       const color = d3.scaleOrdinal(d3.schemeCategory10);
@@ -87,7 +103,7 @@ export default class ForceGraph extends Component<IProps> {
         .data(data.nodes)
         .enter()
         .append<SVGCircleElement>('circle')
-        .attr('r', data.nodes.length > 500 ? 40 * 300/data.nodes.length : height > 1800 ? 66 : 30)
+        .attr('r', radius)
         .style('stroke', '#FFFFFF')
         .style('stroke-width', 2)
         .style('fill', (d: any) => color(d.group))
@@ -117,7 +133,9 @@ export default class ForceGraph extends Component<IProps> {
           .attr('x2', (d: any) => d.target.x)
           .attr('y2', (d: any) => d.target.y);
 
-        node.attr('cx', (d: any) => d.x).attr('cy', (d: any) => d.y);
+        // node.attr('cx', (d: any) => d.x).attr('cy', (d: any) => d.y);
+        node.attr("cx", (d: any) => d.x = Math.max(radius, Math.min(width - radius, d.x)) + 16)
+        .attr("cy", (d: any) => d.y = Math.max(radius, Math.min(height - radius, d.y)) + 16);
 
         labels
           .attr("x", (d: any) => d.x )
