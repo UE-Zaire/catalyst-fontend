@@ -1,5 +1,6 @@
 import { Col, Icon, Layout, Menu, Row } from "antd";
 import * as React from "react";
+// import { Icon as FA } from "react-fa";
 import * as Logo from "../assets/zaire.logo.png"
 
 
@@ -41,15 +42,19 @@ const Nav = (props: INavProps) => (
       selectedKeys={[props.view]}
     >
       <Menu.Item key="surroundings">
-        <Icon type="desktop" />
+        <Icon type="global" style={{ fontSize: 20 }} />
+        {/* <FA name="asterisk" style={{ paddingRight: 12 }}/> */}
         <span>Surroundings</span>
       </Menu.Item>
       <Menu.Item key="paths">
-        <Icon type="pie-chart" />
+        {/* <FA name="exchange" style={{ paddingRight: 12 }}/> */}
+        <Icon type="verticle-left" style={{ paddingLeft: -2, marginLeft: -2, paddingRight: -6, marginRight: -6, fontSize: 20 }} />
+        <Icon type="verticle-right" style={{ paddingLeft: -6, marginLeft: -6, fontSize: 20 }} />
         <span>Paths</span>
       </Menu.Item>
       <Menu.Item key="path">
-        <Icon type="desktop" />
+        <Icon type="swap" style={{ fontSize: 20 }}/>
+        {/* <FA name="genderless" style={{ paddingRight: 12 }}/> */}
         <span>Shortest Path</span>
       </Menu.Item>
     </Menu>
