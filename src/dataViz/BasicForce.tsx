@@ -18,7 +18,6 @@ export default class ForceGraph extends Component<IProps> {
   private ctrls: IRefs = {};
   private force: any;
   
-  
   public componentDidMount() {
     this.renderForce();
   }
@@ -31,13 +30,9 @@ export default class ForceGraph extends Component<IProps> {
   
   public shouldComponentUpdate(nextProps: IProps) {
   
-    return JSON.stringify(this.props.data) === JSON.stringify(nextProps.data) ? 
+    return JSON.stringify(this.props) === JSON.stringify(nextProps) ? 
     false : true;
   }
-  
-  
-  
-  
   
   public render() {
     const { width, height } = this.props;
