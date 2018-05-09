@@ -45,9 +45,10 @@ export default class App extends React.Component {
   public componentDidMount() {
     this.handleResize();
     window.addEventListener('resize', this.handleResize)
+    console.log('initial window width: ', window.innerWidth)
     
-    const height = window.innerHeight * .82;
-    const width = window.innerWidth * .82;
+    const height = window.innerHeight > 1300 ? window.innerHeight * .90 : window.innerHeight * .82;
+    const width = window.innerWidth > 2500 ? window.innerWidth * .90 : window.innerWidth * .816;
     
     Axios.post('http://localhost:3005/api/surroundings', { source: this.state.value1, distance: 1 })
     .then(({ data }) => {
@@ -153,12 +154,12 @@ export default class App extends React.Component {
   }
 
   private handleResize = () => this.setState({
-    height: window.innerHeight * .824,
-    width: window.innerWidth * .824
+    height : window.innerHeight > 1100 ? window.innerHeight * .88 : window.innerHeight * .82,
+    width : window.innerWidth > 2500 ? window.innerWidth * .888 : window.innerWidth * .80
   })
 
   private toggle = () => {
-    const width = this.state.collapsed === true ? window.innerWidth * .83 : window.innerWidth * .90;
+    const width = this.state.collapsed === true ? ( window.innerWidth > 2500 ? window.innerWidth * .90 : window.innerWidth * .83 ) : window.innerWidth * .93;
 
     this.setState({
       collapsed: !this.state.collapsed,
