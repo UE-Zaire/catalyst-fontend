@@ -17,20 +17,22 @@ const Nav = (props: INavProps) => (
     collapsible={true}
     collapsed={props.collapsed}
   >
-    {
-      props.collapsed ?
-        <img src={Logo} style={{ width: '60%', marginLeft: '20%', marginRight: '20%', marginTop: '4px', marginBottom: '4px' }} /> :
-        <Row align={"middle"}>
-          <Col span={18} push={6} >
-            <h1 style={{ color: 'silver', paddingLeft: '10%', fontSize: 40, letterSpacing: '.03em', fontWeight: 400 }}>
-              ZAIRE
-                </h1>
-          </Col>
-          <Col span={6} pull={18}>
-            <img src={Logo} style={{ width: '80%', marginLeft: '30%', marginRight: '30%', marginTop: '4px', marginBottom: '4px' }} />
-          </Col>
-        </Row>
-    }
+    <div style={{ paddingTop: 8 }}>
+      {
+        props.collapsed ?
+          <img src={Logo} style={{ width: '60%', marginLeft: '20%', marginRight: '20%', marginBottom: '4px' }} /> :
+          <Row align={"middle"}>
+            <Col span={18} push={6} >
+              <h1 style={{ color: '#E6F7FF', paddingLeft: '14%', fontSize: 40, letterSpacing: '.04em', fontWeight: 400, fontFamily: 'Avenir', verticalAlign: 'middle' }}>
+                ZAIRE
+            </h1>
+            </Col>
+            <Col span={6} pull={18}>
+              <img src={Logo} style={{ width: '80%', marginLeft: '30%', marginRight: '30%', marginTop: '4px', marginBottom: '4px' }} />
+            </Col>
+          </Row>
+      }
+    </div>
     <Menu
       theme="dark"
       defaultSelectedKeys={["surroundings"]}

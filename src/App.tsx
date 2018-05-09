@@ -38,90 +38,95 @@ export default class App extends React.Component {
     value2: '',
     width: 0
   };
-
+  
   public divElement: any = {};
-
+  
   
   public componentDidMount() {
-
-    const height = this.divElement.clientHeight;
-    const width = this.divElement.clientWidth;
-
+    this.handleResize();
+    window.addEventListener('resize', this.handleResize)
+    
+    const height = window.innerHeight * .82;
+    const width = window.innerWidth * .82;
+    
     Axios.post('http://localhost:3005/api/surroundings', { source: this.state.value1, distance: 1 })
-      .then(({ data }) => {
-        const graphData: IData = data;
-
-        Axios.get('http://localhost:3005/api/nodesList')
-          // tslint:disable-next-line:no-shadowed-variable
-          .then(( { data } ) => {
-            const searchOpts: string[] = data;
-
-            this.setState({
-              data: graphData,
-              height,
-              search: searchOpts,
-              width,
-            })
-          })
-          .catch((err) => console.error(err));
+    .then(({ data }) => {
+      const graphData: IData = data;
+      
+      Axios.get('http://localhost:3005/api/nodesList')
+      // tslint:disable-next-line:no-shadowed-variable
+      .then(( { data } ) => {
+        const searchOpts: string[] = data;
+        
+        this.setState({
+          data: graphData,
+          height,
+          search: searchOpts,
+          width,
+        })
       })
       .catch((err) => console.error(err));
+    })
+    .catch((err) => console.error(err));
   }
 
-
+  public componentWillUnmount() {
+    window.removeEventListener('resize', this.handleResize);
+  }
+  
   public render() {
     const { data, search } = this.state;
 
-      return (
-        <Layout style={{ minHeight: '100vh', minWidth: '100vw' }}>
-          <Nav collapsed={this.state.collapsed} select={this.handleSelect} view={this.state.currentFetch}/>
-          <Layout>
-            <Head 
-              collapsed={this.state.collapsed} 
-              toggleSider={this.toggle} 
-              suggestions={search} 
-              input1={this.state.value1} 
-              input2={this.state.value2} 
-              ctrlInput={this.controlledInput} 
-              ctrlSelect1={this.controlledSelect1}
-              ctrlSelect2={this.controlledSelect2}
-              view={this.state.currentFetch}
-              chgView={this.handleChange}
-              postPaths={this.postPaths}
-              postPath={this.postPath}
-              postSurroundings={this.postSurroundings}
-            />
-              {data !== null ? 
-                (
-                <Content
-                  style={{ margin: '24px 24px', padding: 24, background: '#fff', width: '92vw', height: '100vh'}}
-                  >
-                    <div ref={ divElement => {this.divElement = divElement}} style={{ height: '100vh', width: `${!this.state.collapsed ? '94vw' : '90vw'}` }}>
-                      <ForceGraph width={this.state.width} height={this.state.height} data={data}/>
-                    </div>
-                  </Content>) :
-                (<Content>  
-                  <div ref={ divElement => {this.divElement = divElement}} style={{ height: '100vh', width: '90vw' }}>
-                    <Spin size="large" />
-                  </div>
-                </Content>)
-              }
-          </Layout>
+    return (
+      <Layout style={{ minHeight: '100vh', minWidth: '100vw' }}>
+        <Nav collapsed={this.state.collapsed} select={this.handleSelect} view={this.state.currentFetch} />
+        <Layout>
+          <Head
+            collapsed={this.state.collapsed}
+            toggleSider={this.toggle}
+            suggestions={search}
+            input1={this.state.value1}
+            input2={this.state.value2}
+            ctrlInput={this.controlledInput}
+            ctrlSelect1={this.controlledSelect1}
+            ctrlSelect2={this.controlledSelect2}
+            view={this.state.currentFetch}
+            chgView={this.handleChange}
+            postPaths={this.postPaths}
+            postPath={this.postPath}
+            postSurroundings={this.postSurroundings}
+          />
+          {data !== null ?
+            (
+              <Content
+                style={{ margin: '2rem', padding: '2rem', background: '#fff'}}
+              >
+                <div ref={divElement => { this.divElement = divElement }} style={{ height: this.state.height, width: `${!this.state.collapsed ? this.state.width : this.state.width * .9}` }}>
+                  <ForceGraph width={this.state.width} height={this.state.height} data={data} />
+                </div>
+              </Content>) :
+            (<Content>
+              <div ref={divElement => { this.divElement = divElement }} style={{ height: '100vh', width: '90vw' }}>
+                <Spin size="large" />
+              </div>
+            </Content>)
+          }
         </Layout>
-      );
-    }
+      </Layout>
+    );
+  }
     
   private postPaths = () => {
-      Axios.post('http://localhost:3005/api/paths', { source: this.state.value1, target: this.state.value2 })
-        // tslint:disable-next-line:no-shadowed-variable
-        .then(({ data }) => {
-          const graphData: IData = data;
-          this.setState({
-            data: graphData,
-          })
-        })
-        .catch((err) => console.error(err));
-    }
+    Axios.post('http://localhost:3005/api/paths', { source: this.state.value1, target: this.state.value2 })
+    // tslint:disable-next-line:no-shadowed-variable
+    .then(({ data }) => {
+      const graphData: IData = data;
+      this.setState({
+        data: graphData,
+      })
+    })
+    .catch((err) => console.error(err));
+  }
 
   private postPath = () => {
     Axios.post('http://localhost:3005/api/path', { source: this.state.value1, target: this.state.value2 })
@@ -147,14 +152,16 @@ export default class App extends React.Component {
     .catch((err) => console.error(err));
   }
 
-  private toggle = () => {
+  private handleResize = () => this.setState({
+    height: window.innerHeight * .824,
+    width: window.innerWidth * .824
+  })
 
-    const height = this.divElement.clientHeight;
-    const width = this.divElement.clientWidth;
+  private toggle = () => {
+    const width = this.state.collapsed === true ? window.innerWidth * .83 : window.innerWidth * .90;
 
     this.setState({
       collapsed: !this.state.collapsed,
-      height,
       width,
     });
   }
