@@ -5,7 +5,9 @@ import * as React from 'react';
 import '../node_modules/antd/es/input/style/index.css';
 import Head from "./components/Head";
 import Nav from "./components/Nav";
+// import Tweets from "./components/Tweets";
 import ForceGraph from "./dataViz/BasicForce";
+import Embed from "./dataViz/Embed";
 import { IData } from "./testData/leMis";
 
 const { Content } = Layout;
@@ -15,7 +17,9 @@ interface IGlobalState {
   currentFetch: string;
   data: IData | null;
   distance: number;
+  embed: object[] | null;
   height: number;
+  renderChild: boolean;
   search: string[];
   selectedFetch: string;
   value1: string;
@@ -31,7 +35,9 @@ export default class App extends React.Component {
     currentFetch: 'surroundings',
     data: null,
     distance: 1,
+    embed: null,
     height: 0,
+    renderChild: false,
     search: [],
     selectedFetch: 'paths',
     value1: 'Mammal',
@@ -58,13 +64,23 @@ export default class App extends React.Component {
       // tslint:disable-next-line:no-shadowed-variable
       .then(( { data } ) => {
         const searchOpts: string[] = data;
+
+        Axios.get('http://localhost:3005/api/embedding')
+          // tslint:disable-next-line:no-shadowed-variable
+          .then(({ data }) => {
+            
+            console.log('incoming data from csv ', data);
+
+            this.setState({
+              data: graphData,
+              embed: data,
+              height,
+              search: searchOpts,
+              width,
+            });
+          })
+          .catch((err) => console.error(err));
         
-        this.setState({
-          data: graphData,
-          height,
-          search: searchOpts,
-          width,
-        })
       })
       .catch((err) => console.error(err));
     })
@@ -76,7 +92,7 @@ export default class App extends React.Component {
   }
   
   public render() {
-    const { data, search } = this.state;
+    const { data, embed, height, width, search } = this.state;
 
     return (
       <Layout style={{ minHeight: '100vh', minWidth: '100vw' }}>
@@ -103,7 +119,7 @@ export default class App extends React.Component {
                 style={{ margin: '2rem', padding: '2rem', background: '#fff'}}
               >
                 <div ref={divElement => { this.divElement = divElement }} style={{ height: this.state.height, width: `${!this.state.collapsed ? this.state.width : this.state.width * .9}` }}>
-                  <ForceGraph width={this.state.width} height={this.state.height} data={data} />
+                  <ForceGraph width={this.state.width} height={this.state.height} data={data} condRender={this.condRender}/>
                 </div>
               </Content>) :
             (<Content>
@@ -112,9 +128,32 @@ export default class App extends React.Component {
               </div>
             </Content>)
           }
+          {this.state.renderChild ? 
+            ( 
+              embed !== null ? 
+                (<Content
+                    style={{ margin: '2rem', padding: '2rem', background: '#fff'}}
+                  >
+                    <div ref={divElement => { this.divElement = divElement }} style={{ height: this.state.height, width: `${!this.state.collapsed ? this.state.width : this.state.width * .9}` }}>
+                      <Embed height={height} width={width} data={embed} />
+                    </div>
+                  </Content>) :
+                (<Content>
+                  <div ref={divElement => { this.divElement = divElement }} style={{ height: '100vh', width: '90vw' }}>
+                    <Spin size="large" />
+                  </div>
+                </Content>)) :
+            null
+          }
         </Layout>
       </Layout>
     );
+  }
+
+  private condRender = () => {
+    this.setState({
+      renderChild: !this.state.renderChild
+    });
   }
     
   private postPaths = () => {

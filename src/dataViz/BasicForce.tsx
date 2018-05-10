@@ -8,6 +8,7 @@ interface IProps {
   width: number;
   height: number;
   data: IData;
+  condRender: () => void;
 }
 
 interface IRefs {
@@ -15,6 +16,7 @@ interface IRefs {
 }
 
 export default class ForceGraph extends Component<IProps> {
+  
   private ctrls: IRefs = {};
   private force: any;
   
@@ -22,16 +24,17 @@ export default class ForceGraph extends Component<IProps> {
     this.renderForce();
   }
   
-  public componentDidUpdate() {
+  public componentDidUpdate(nextState: any) {
     console.log(' shouldupdating component')
-    this.removeForce();
-    this.renderForce();
+      this.removeForce();
+      this.renderForce();
   }
   
-  public shouldComponentUpdate(nextProps: IProps) {
+  public shouldComponentUpdate(nextProps: IProps, nextState: any) {
   
-    return JSON.stringify(this.props) === JSON.stringify(nextProps) ? 
-    false : true;
+    return JSON.stringify(this.props) === JSON.stringify(nextProps) ?
+    (JSON.stringify(this.state) === JSON.stringify(nextState) ? false : true) :
+    true;
   }
   
   public render() {
@@ -41,8 +44,12 @@ export default class ForceGraph extends Component<IProps> {
       height,
       width
     };
-    return <div style={style} ref={mountPoint => (this.ctrls.mountPoint = mountPoint)} />;
+  return (
+    <div>
+      <div style={style} ref={mountPoint => (this.ctrls.mountPoint = mountPoint)} />
+    </div>)
   }
+
   
   private removeForce() {
     const force: any = this.ctrls.mountPoint;
@@ -118,8 +125,8 @@ export default class ForceGraph extends Component<IProps> {
               .style("text-anchor", "middle")
               .style("fill", "white")
               .style("font-family", "Arial")
-              .style("font-size", 12);
-
+              .style("font-size", 12)
+              .on("click", this.props.condRender)
 
       this.force.on('tick', () => {
         link
