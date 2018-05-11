@@ -96,7 +96,8 @@ export default class ForceGraph extends Component<IProps> {
         .append('line')
         .style('stroke', '#999999')
         .style('stroke-opacity', 0.6)
-        .style('stroke-width', d => Math.sqrt(d.value) * 2)
+        .style('stroke-width', d => 8);
+        // .style('stroke-width', d => Math.sqrt(d.value) * 2)
 
 
       const color = d3.scaleOrdinal(d3.schemeCategory10);

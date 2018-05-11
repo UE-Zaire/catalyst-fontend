@@ -8,11 +8,14 @@ interface IProps {
   width: number;
   height: number;
   data: any;
+  labels: Array<{id: string, label: string}>;
 }
 
 interface IRefs {
   mountPoint?: HTMLDivElement | null;
 }
+
+let idleTimeout: any;
 
 export default class Embed extends Component<IProps> {
 
@@ -38,43 +41,88 @@ export default class Embed extends Component<IProps> {
   }
 
   private renderEmbed = () => {
-    const { width, height, data } = this.props;
+    const { width, height } = this.props;
+
+    const data = this.props.data.map((point: number[], idx: number) => {
+      const newD: any = point.slice()
+      newD.push(this.props.labels[idx].id);
+      return newD;
+    });
+
+    console.log('sample data', this.props.data, 'labels ', this.props.labels)
 
     const xCoords: number[] = data.map((point: number[]) => point[0]);
 
     const yCoords: number[] = data.map((point: number[]) => point[1]);
 
     if (this.ctrls.mountPoint !== undefined) {
-      const svg = d3
-        .select(this.ctrls.mountPoint)  
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height)
 
+      
       const x0 = [Math.min(...xCoords), Math.max(...xCoords)];
       const  y0 = [Math.min(...yCoords), Math.max(...yCoords)];
       const x = d3.scaleLinear().domain(x0).range([0, width]);
       const y = d3.scaleLinear().domain(y0).range([height, 0]);
       const z = d3.scaleOrdinal(d3.schemeCategory10);
+      
+      const svg = d3
+        .select(this.ctrls.mountPoint)  
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", "translate(" + 8 + "," + 8 + ")");
 
-      console.log('x is in d3 render', x);
+      // const clip = svg.append("defs").append("svg:clipPath")
+      // .attr("id", "clip")
+      // .append("svg:rect")
+      // .attr("width", width)
+      // .attr("height", height)
+      // .attr("x", 0)
+      // .attr("y", 0);
+
+      // const xExtent = d3.extent(data, (d: any) => {
+      //   return d.x;
+      // });
+      // const yExtent = d3.extent(data, (d: any) => {
+      //   return d.y;
+      // });
+      // x.domain(d3.extent(data, (d) => d.x)).nice();
+      // y.domain(d3.extent(data, function(d) {
+      //   return d.y;
+      // })).nice();
+      
+
+      // console.log('x is in d3 render', x);
 
       const xAxis = d3.axisTop(x).ticks(12);
       const yAxis = d3.axisRight(y).ticks(12 * height / width);
 
       console.log('this in d3 render', this);
 
-      const idleTimeout = null;
       const idleDelay = 350;
-      const brush = d3.brush().on("end", () => this.brushended(brush, idleDelay, idleTimeout, this.idled, x, x0, xAxis, y, y0, yAxis, svg, this.zoom));
+      const brush = d3.brush().on("end", () => this.brushended(brush, idleDelay, x, x0, xAxis, y, y0, yAxis, svg));
+      svg.append("g")
+        .attr("class", "brush")
+        .call(brush);
 
-      svg.selectAll("circle")
+      svg.selectAll(".dot")
         .data(data)
         .enter().append("circle")
         .attr("cx", (d: any) => x(d[0]))
         .attr("cy", (d: any) => y(d[1]))
-        .attr("r", 2.5)
-        .attr("fill", (d: any) => z(d[2]));
+        .attr("r", data.length / 100)
+        .attr("fill", (d: any) => z(d[2]))
+        .on("click", (d: any) => this.poop(d));
+
+      // svg.selectAll("circle")
+      //   .data(data)
+      //   .enter().append("circle")
+      //   .attr("cx", (d: any) => x(d[0]))
+      //   .attr("cy", (d: any) => y(d[1]))
+      //   .attr("r", data.length / 100)
+      //   .attr("fill", (d: any) => z(d[2]))
+      //   .on("click", (d: any) => this.poop(d));
+
 
       svg.append("g")
         .attr("class", "axis axis--x")
@@ -89,19 +137,18 @@ export default class Embed extends Component<IProps> {
       svg.selectAll(".domain")
         .style("display", "none");
 
-      svg.append("g")
-        .attr("class", "brush")
-        .call(brush);
 
     }
+
+    
   }
 
-  private brushended = (brush: any, idleDelay: any, idleTimeout: any, idled: any, x: any, x0: any, xAxis: any, y: any, y0: any, yAxis: any, svg: any, zoom: any) => {
+  private brushended = (brush: any, idleDelay: any, x: any, x0: any, xAxis: any, y: any, y0: any, yAxis: any, svg: any) => {
 
     const s = d3.event.selection;
     if (!s) {
       if (!idleTimeout) {
-        idleTimeout = setTimeout(() => idled(idleTimeout), idleDelay)
+        idleTimeout = setTimeout(() => this.idled(), idleDelay)
         return idleTimeout;
       }
       x.domain(x0);
@@ -111,10 +158,11 @@ export default class Embed extends Component<IProps> {
       y.domain([s[1][1], s[0][1]].map(y.invert, y));
       svg.select(".brush").call(brush.move, null);
     }
-    zoom(svg, x, xAxis, y, yAxis);
+    this.zoom(svg, x, xAxis, y, yAxis);
   }
   
-  private idled(idleTimeout: any) {
+  private idled() {
+    console.log('calling idled', idleTimeout)
     idleTimeout = null;
   }
   
@@ -126,6 +174,10 @@ export default class Embed extends Component<IProps> {
     svg.selectAll("circle").transition(t)
         .attr("cx", (d: any) => x(d[0]))
         .attr("cy", (d: any) => y(d[1]));
+  }
+
+  private poop = (d: any) => {
+    alert(`${d}`);
   }
 
 }

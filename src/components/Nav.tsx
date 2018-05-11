@@ -1,7 +1,10 @@
 import { Col, Icon, Layout, Menu, Row } from "antd";
 import * as React from "react";
-// import { Icon as FA } from "react-fa";
+import { Icon as FA } from "react-fa";
 import * as Logo from "../assets/zaire.logo.png"
+
+const SubMenu = Menu.SubMenu;
+
 
 
 const { Sider } = Layout;
@@ -36,14 +39,18 @@ const Nav = (props: INavProps) => (
     </div>
     <Menu
       theme="dark"
-      defaultSelectedKeys={["surroundings"]}
+      defaultSelectedKeys={["wikipedia"]}
+      defaultOpenKeys={["wikipedia"]}
       mode="inline"
       onSelect={props.select}
       selectedKeys={[props.view]}
     >
+      <SubMenu
+        key="wikipedia"
+        title={<span><FA name="wikipedia-w" style={{ paddingLeft: -2, paddingRight: 12, fontSize: 20 }}/>{!props.collapsed ? "Wikipedia" : null}</span>}
+      >
       <Menu.Item key="surroundings">
         <Icon type="global" style={{ fontSize: 20 }} />
-        {/* <FA name="asterisk" style={{ paddingRight: 12 }}/> */}
         <span>Surroundings</span>
       </Menu.Item>
       <Menu.Item key="paths">
@@ -57,6 +64,28 @@ const Nav = (props: INavProps) => (
         {/* <FA name="genderless" style={{ paddingRight: 12 }}/> */}
         <span>Shortest Path</span>
       </Menu.Item>
+      </SubMenu>
+      <SubMenu
+        key="twitter"
+        title={<span><Icon type="twitter" style={{ fontSize: 20 }} /><span>Twitter</span></span>}
+      >
+        <Menu.Item key="surroundings">
+          <Icon type="global" style={{ fontSize: 20 }} />
+          <span>Surroundings</span>
+        </Menu.Item>
+        <Menu.Item key="paths">
+          {/* <FA name="exchange" style={{ paddingRight: 12 }}/> */}
+          <Icon type="verticle-left" style={{ paddingLeft: -2, marginLeft: -2, paddingRight: -6, marginRight: -6, fontSize: 20 }} />
+          <Icon type="verticle-right" style={{ paddingLeft: -6, marginLeft: -6, fontSize: 20 }} />
+          <span>Paths</span>
+        </Menu.Item>
+        <Menu.Item key="path">
+          <Icon type="swap" style={{ fontSize: 20 }} />
+          {/* <FA name="genderless" style={{ paddingRight: 12 }}/> */}
+          <span>Shortest Path</span>
+        </Menu.Item>
+      </SubMenu>
+
     </Menu>
   </Sider>
 )

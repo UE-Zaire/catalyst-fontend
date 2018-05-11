@@ -5,12 +5,14 @@
   "dependencies": {
     "@types/axios": "^0.14.0",
     "@types/d3": "^5.0.0",
+    "@types/react-fa": "^4.1.4",
     "antd": "^3.5.0",
     "axios": "^0.18.0",
     "d3": "^5.1.0",
     "react": "^16.3.2",
     "react-autocomplete": "^1.8.1",
     "react-dom": "^16.3.2",
+    "react-fa": "^5.0.0",
     "react-scripts-ts": "2.15.1"
   },
   "scripts": {

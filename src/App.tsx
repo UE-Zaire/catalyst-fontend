@@ -1,11 +1,13 @@
 /* tslint:disable:no-console jsx-no-lambda */
-import { Layout, Spin } from "antd";
+import { Col, Layout, Row, Spin } from "antd";
 import Axios from 'axios';
 import * as React from 'react';
 import '../node_modules/antd/es/input/style/index.css';
+// import Tweets from "./components/Tweets";
+import Crumbs from "./components/Crumbs";
 import Head from "./components/Head";
 import Nav from "./components/Nav";
-// import Tweets from "./components/Tweets";
+import Tweets from "./components/Tweets";
 import ForceGraph from "./dataViz/BasicForce";
 import Embed from "./dataViz/Embed";
 import { IData } from "./testData/leMis";
@@ -20,8 +22,8 @@ interface IGlobalState {
   embed: object[] | null;
   height: number;
   renderChild: boolean;
-  search: string[];
-  selectedFetch: string;
+  search: Array<{id: string, label: string}>;
+  // selectedetch: string;
   value1: string;
   value2: string;
   width: number;
@@ -39,7 +41,7 @@ export default class App extends React.Component {
     height: 0,
     renderChild: false,
     search: [],
-    selectedFetch: 'paths',
+    // selectedFetch: 'paths',
     value1: 'Mammal',
     value2: '',
     width: 0
@@ -113,38 +115,46 @@ export default class App extends React.Component {
             postPath={this.postPath}
             postSurroundings={this.postSurroundings}
           />
-          {data !== null ?
-            (
-              <Content
-                style={{ margin: '2rem', padding: '2rem', background: '#fff'}}
-              >
-                <div ref={divElement => { this.divElement = divElement }} style={{ height: this.state.height, width: `${!this.state.collapsed ? this.state.width : this.state.width * .9}` }}>
-                  <ForceGraph width={this.state.width} height={this.state.height} data={data} condRender={this.condRender}/>
-                </div>
-              </Content>) :
-            (<Content>
-              <div ref={divElement => { this.divElement = divElement }} style={{ height: '100vh', width: '90vw' }}>
-                <Spin size="large" />
-              </div>
-            </Content>)
-          }
-          {this.state.renderChild ? 
-            ( 
-              embed !== null ? 
-                (<Content
-                    style={{ margin: '2rem', padding: '2rem', background: '#fff'}}
-                  >
-                    <div ref={divElement => { this.divElement = divElement }} style={{ height: this.state.height, width: `${!this.state.collapsed ? this.state.width : this.state.width * .9}` }}>
-                      <Embed height={height} width={width} data={embed} />
-                    </div>
-                  </Content>) :
-                (<Content>
-                  <div ref={divElement => { this.divElement = divElement }} style={{ height: '100vh', width: '90vw' }}>
-                    <Spin size="large" />
+          <Crumbs view={this.state.currentFetch}/>
+          <Row type="flex" justify="start" align="top" gutter={16}>
+            <Col>
+            {data !== null ?
+              (
+                <Content
+                  style={{ margin: '2rem', padding: '2rem', background: '#fff'}}
+                >
+                  <div ref={divElement => { this.divElement = divElement }} style={{ height: this.state.height, width: `${!this.state.collapsed ? this.state.width : this.state.width * .9}` }}>
+                    <ForceGraph width={this.state.width} height={this.state.height} data={data} condRender={this.condRender} />
                   </div>
-                </Content>)) :
-            null
-          }
+                </Content>) :
+              (<Content>
+                <div ref={divElement => { this.divElement = divElement }} style={{ height: '100vh', width: '90vw' }}>
+                  <Spin size="large" />
+                </div>
+              </Content>)
+            }
+            {this.state.renderChild ? 
+              ( 
+                embed !== null ? 
+                  (<Content
+                      style={{ margin: '2rem', padding: '2rem', background: '#fff'}}
+                    >
+                      <div ref={divElement => { this.divElement = divElement }} style={{ height: this.state.height, width: `${!this.state.collapsed ? this.state.width : this.state.width * .9}` }}>
+                        <Embed height={height} width={width} data={embed} labels={this.state.search}/>
+                      </div>
+                    </Content>) :
+                  (<Content>
+                    <div ref={divElement => { this.divElement = divElement }} style={{ height: '100vh', width: '90vw' }}>
+                      <Spin size="large" />
+                    </div>
+                  </Content>)) :
+              null
+            }
+            </Col>
+            <Col>
+              <Tweets />
+            </Col>
+          </Row>
         </Layout>
       </Layout>
     );
@@ -161,7 +171,7 @@ export default class App extends React.Component {
     // tslint:disable-next-line:no-shadowed-variable
     .then(({ data }) => {
       const graphData: IData = data;
-      this.setState({
+      this.setState({ 
         data: graphData,
       })
     })
@@ -180,18 +190,30 @@ export default class App extends React.Component {
     .catch((err) => console.error(err));
   }
 
+  // private postSurroundings = () => {
+  //   Axios.post('http://localhost:3005/api/surroundings', { source: this.state.value1, distance: this.state.distance })
+  //   // tslint:disable-next-line:no-shadowed-variable
+  //   .then(({ data }) => {
+  //     const graphData: IData = data;
+  //     this.setState({
+  //       data: graphData,
+  //     })
+  //   })
+  //   .catch((err) => console.error(err));
+  // }
   private postSurroundings = () => {
-    Axios.post('http://localhost:3005/api/surroundings', { source: this.state.value1, distance: this.state.distance })
+    Axios.post('http://localhost:3005/api/twitterFollowers', { username: this.state.value1 })
     // tslint:disable-next-line:no-shadowed-variable
     .then(({ data }) => {
-      const graphData: IData = data;
+      console.log('data is?', data);
+      data.nodes.unshift({id: this.state.value1, group: 100})
+      const graphData: any = data;
       this.setState({
         data: graphData,
       })
     })
     .catch((err) => console.error(err));
   }
-
   private handleResize = () => this.setState({
     height : window.innerHeight > 1100 ? window.innerHeight * .88 : window.innerHeight * .82,
     width : window.innerWidth > 2500 ? window.innerWidth * .888 : window.innerWidth * .80
